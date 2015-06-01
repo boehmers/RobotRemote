@@ -14,74 +14,95 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
 public class MainActivity extends ActionBarActivity {
 
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int ROBOT_CLASS_KEY = 2052;
     private BluetoothAdapter bAdapter;
     private BluetoothSocket robot;
-    private final UUID appUUID = UUID.randomUUID();
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice robotDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                try {
-                    robot = robotDevice.createRfcommSocketToServiceRecord(appUUID);
-                } catch (IOException e) {
-                    Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
-                }
-            }
-        }
-    };
+    private BluetoothDevice robotDevice;
+    private final UUID appUUID = new UUID(666L, 666L);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         setUpBluetooth();
         Button messageButton = (Button) findViewById(R.id.messageButton);
         messageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                OutputStream outputStream = null;
                 try {
-                    robot.connect();
-                    OutputStream outputStream = robot.getOutputStream();
+                    new Runnable() {
+
+                        @Override
+                        public void run() {
+                            try {
+                                robotDevice = bAdapter.getRemoteDevice(robotDevice.getAddress());
+                                robot = robotDevice.createRfcommSocketToServiceRecord(appUUID);
+                                if (!robot.isConnected()) {
+                                    robot.connect();
+                                }
+                            } catch (IOException e) {
+                                Log.e("Connection Error!", "ERROR:", e);
+                            }
+                        }
+                    }.run();
+                    outputStream = robot.getOutputStream();
                     // TODO: Write the command buffer!
+                    byte[] bytes = new byte[]{0x00};
+                    outputStream.write(bytes);
                 } catch (IOException e) {
                     Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
                 }
             }
         });
-        setContentView(R.layout.activity_main);
     }
 
     private void setUpBluetooth() {
         // 1. Get the adapter
         bAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(bAdapter == null) {
+        if (bAdapter == null) {
             Toast.makeText(getBaseContext(), "Bluetooth not supported on this device!", Toast.LENGTH_SHORT);
         }
-        // 2. BroadcastReceiver for found devices
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter);
-        // 3. Enable Bluetooth
-        if(!bAdapter.isEnabled()) {
-            Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BT);
+
+        Set<BluetoothDevice> pairedDevices = bAdapter.getBondedDevices();
+        // If there are paired devices
+        if (pairedDevices.size() > 0) {
+            // Loop through paired devices
+            List<String> devices = new ArrayList<>();
+            for (BluetoothDevice device : pairedDevices) {
+                // Add the name and address to an array adapter to show in a ListView
+                if (device.getBluetoothClass().getDeviceClass() == ROBOT_CLASS_KEY) {
+                    devices.add(device.getName());
+                    devices.add(device.getAddress());
+                    robotDevice = device;
+                }
+            }
+            TextView robotName = (TextView) findViewById(R.id.robotName);
+            robotName.setText(devices.get(0));
+            TextView robotMac = (TextView) findViewById(R.id.robotMac);
+            robotMac.setText(devices.get(1));
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             // TODO
             bAdapter.startDiscovery();
         }
