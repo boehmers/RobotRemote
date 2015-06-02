@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,7 @@ public class MainActivity extends ActionBarActivity {
     private BluetoothAdapter bAdapter;
     private BluetoothSocket robot;
     private BluetoothDevice robotDevice;
-    private final UUID appUUID = new UUID(666L, 666L);
+    private final UUID appUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,25 +47,13 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View view) {
                 OutputStream outputStream = null;
                 try {
-                    new Runnable() {
-
-                        @Override
-                        public void run() {
-                            try {
-                                robotDevice = bAdapter.getRemoteDevice(robotDevice.getAddress());
-                                robot = robotDevice.createRfcommSocketToServiceRecord(appUUID);
-                                if (!robot.isConnected()) {
-                                    robot.connect();
-                                }
-                            } catch (IOException e) {
-                                Log.e("Connection Error!", "ERROR:", e);
-                            }
-                        }
-                    }.run();
                     outputStream = robot.getOutputStream();
                     // TODO: Write the command buffer!
-                    byte[] bytes = new byte[]{0x00};
-                    outputStream.write(bytes);
+                    OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+                    byte msg = 1;
+                    writer.write(msg);
+                    writer.flush();
+                    outputStream.flush();
                 } catch (IOException e) {
                     Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
                 }
@@ -96,15 +85,13 @@ public class MainActivity extends ActionBarActivity {
             robotName.setText(devices.get(0));
             TextView robotMac = (TextView) findViewById(R.id.robotMac);
             robotMac.setText(devices.get(1));
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            // TODO
-            bAdapter.startDiscovery();
+            BluetoothDevice actualRobotDevice = bAdapter.getRemoteDevice(robotDevice.getAddress());
+            try {
+                robot = actualRobotDevice.createRfcommSocketToServiceRecord(appUUID);
+                robot.connect();
+            } catch (IOException e) {
+                Log.e("ERROR: ", "Connection Failure: ", e);
+            }
         }
     }
 
@@ -123,7 +110,9 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_reconnect) {
+            // TODO reconnect!
+            setUpBluetooth();
             return true;
         }
 
