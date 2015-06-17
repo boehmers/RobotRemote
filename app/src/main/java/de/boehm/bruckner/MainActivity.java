@@ -57,24 +57,6 @@ public class MainActivity extends ActionBarActivity {
         } catch (IOException e) {
             Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
         }
-//        Button testButton = (Button) findViewById(R.id.messageButton);
-//        testButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                OutputStream outputStream = null;
-//                try {
-//                    outputStream = robot.getOutputStream();
-//                    // TODO: Write the command buffer!
-//                    OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-//                    byte msg = 1;
-//                    writer.write(msg);
-//                    writer.flush();
-//                    outputStream.flush();
-//                } catch (IOException e) {
-//                    Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
-//                }
-//            }
-//        });
         final ToggleButton forwardButton = (ToggleButton) findViewById(R.id.forwardButton);
         forwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
                 communicationController.beep();
             }
         });
-        final Button sendButton = (Button) findViewById(R.id.messageButton);
+        final Button sendButton = (Button) findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
