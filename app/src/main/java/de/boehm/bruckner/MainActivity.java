@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,27 +37,121 @@ public class MainActivity extends ActionBarActivity {
     private BluetoothDevice robotDevice;
     private final UUID appUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    private MoveController moveController;
+    private GrabController grabController;
+    private CommunicationController communicationController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpBluetooth();
-        Button messageButton = (Button) findViewById(R.id.messageButton);
-        messageButton.setOnClickListener(new View.OnClickListener() {
+        OutputStream outputStream = null;
+        try {
+            outputStream = robot.getOutputStream();
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+            moveController = new MoveControllerImpl(writer);
+            grabController = new GrabControllerImpl(writer);
+            communicationController = new CommunicationControllerImpl(writer);
+        } catch (IOException e) {
+            Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
+        }
+//        Button testButton = (Button) findViewById(R.id.messageButton);
+//        testButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                OutputStream outputStream = null;
+//                try {
+//                    outputStream = robot.getOutputStream();
+//                    // TODO: Write the command buffer!
+//                    OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+//                    byte msg = 1;
+//                    writer.write(msg);
+//                    writer.flush();
+//                    outputStream.flush();
+//                } catch (IOException e) {
+//                    Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
+//                }
+//            }
+//        });
+        final ToggleButton forwardButton = (ToggleButton) findViewById(R.id.forwardButton);
+        forwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                OutputStream outputStream = null;
-                try {
-                    outputStream = robot.getOutputStream();
-                    // TODO: Write the command buffer!
-                    OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-                    byte msg = 1;
-                    writer.write(msg);
-                    writer.flush();
-                    outputStream.flush();
-                } catch (IOException e) {
-                    Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
+                if(forwardButton.isChecked()) {
+                    moveController.startMovingForward();
+                } else {
+                    moveController.stopMovingForward();
                 }
+            }
+        });
+        final ToggleButton backwardButton = (ToggleButton) findViewById(R.id.backwardButton);
+        backwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(backwardButton.isChecked()) {
+                    moveController.startMovingBackward();
+                } else {
+                    moveController.stopMovingBackward();
+                }
+            }
+        });
+        final ToggleButton leftButton = (ToggleButton) findViewById(R.id.leftButton);
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(leftButton.isChecked()) {
+                    moveController.startTurnLeft();
+                } else {
+                    moveController.stopTurnLeft();
+                }
+            }
+        });
+        final ToggleButton rightButton = (ToggleButton) findViewById(R.id.rightButton);
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(rightButton.isChecked()) {
+                    moveController.startTurnRight();
+                } else {
+                    moveController.stopTurnRight();
+                }
+            }
+        });
+        final ToggleButton grabButton = (ToggleButton) findViewById(R.id.grabButton);
+        grabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(grabButton.isChecked()) {
+                    grabController.startGrab();
+                } else {
+                    grabController.stopGrab();
+                }
+            }
+        });
+        final ToggleButton releaseButton = (ToggleButton) findViewById(R.id.releaseButton);
+        releaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(releaseButton.isChecked()) {
+                    grabController.startGrabRelease();
+                } else {
+                    grabController.stopGrabRelease();
+                }
+            }
+        });
+        final Button beepButton = (Button) findViewById(R.id.beepButton);
+        beepButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                communicationController.beep();
+            }
+        });
+        final Button sendButton = (Button) findViewById(R.id.messageButton);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                communicationController.sendMessage("TODO");
             }
         });
     }

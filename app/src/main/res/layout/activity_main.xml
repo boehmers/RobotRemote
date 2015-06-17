@@ -103,4 +103,13 @@
         android:layout_toEndOf="@+id/editText"
         android:layout_alignBottom="@+id/editText" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Beep"
+        android:id="@+id/beepButton"
+        android:layout_below="@+id/editText"
+        android:layout_alignStart="@+id/editText"
+        android:layout_alignEnd="@+id/sendButton" />
+
 </RelativeLayout>
