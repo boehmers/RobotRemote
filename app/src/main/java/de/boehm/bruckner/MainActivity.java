@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -78,7 +79,7 @@ public class MainActivity extends ActionBarActivity {
         forwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(forwardButton.isChecked()) {
+                if (forwardButton.isChecked()) {
                     moveController.startMovingForward();
                 } else {
                     moveController.stopMovingForward();
@@ -151,7 +152,9 @@ public class MainActivity extends ActionBarActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                communicationController.sendMessage("TODO");
+                EditText text = (EditText) findViewById(R.id.editText);
+                Toast.makeText(getBaseContext(), text.getText().toString(), Toast.LENGTH_SHORT);
+                communicationController.sendMessage(text.getText().toString());
             }
         });
     }

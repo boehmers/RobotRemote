@@ -37,7 +37,9 @@
         android:layout_below="@+id/robotMac"
         android:layout_alignEnd="@+id/messageButton"
         android:layout_alignStart="@+id/messageButton"
-        android:checked="false" />
+        android:checked="false"
+        android:textOff="^"
+        android:textOn="X" />
 
     <ToggleButton
         android:layout_width="wrap_content"
@@ -47,7 +49,9 @@
         android:layout_below="@+id/forwardButton"
         android:layout_alignEnd="@+id/forwardButton"
         android:layout_alignStart="@+id/forwardButton"
-        android:checked="false" />
+        android:checked="false"
+        android:textOff="v"
+        android:textOn="X" />
 
     <ToggleButton
         android:layout_width="wrap_content"
@@ -56,7 +60,9 @@
         android:id="@+id/leftButton"
         android:checked="false"
         android:layout_below="@+id/forwardButton"
-        android:layout_toStartOf="@+id/backwardButton" />
+        android:layout_toStartOf="@+id/backwardButton"
+        android:textOff="&lt;-"
+        android:textOn="X" />
 
     <ToggleButton
         android:layout_width="wrap_content"
@@ -65,7 +71,9 @@
         android:id="@+id/rightButton"
         android:layout_below="@+id/forwardButton"
         android:layout_toEndOf="@+id/backwardButton"
-        android:checked="false" />
+        android:checked="false"
+        android:textOff="->"
+        android:textOn="X" />
 
     <ToggleButton
         android:layout_width="wrap_content"
@@ -75,7 +83,9 @@
         android:layout_below="@+id/backwardButton"
         android:layout_alignStart="@+id/leftButton"
         android:layout_toStartOf="@+id/backwardButton"
-        android:checked="false" />
+        android:checked="false"
+        android:textOff="GRAB"
+        android:textOn="X" />
 
     <ToggleButton
         android:layout_width="wrap_content"
@@ -84,7 +94,9 @@
         android:id="@+id/releaseButton"
         android:layout_alignBottom="@+id/grabButton"
         android:layout_alignStart="@+id/rightButton"
-        android:checked="false" />
+        android:checked="false"
+        android:textOff="RELEASE"
+        android:textOn="X" />
 
     <EditText
         android:layout_width="wrap_content"
