@@ -46,17 +46,29 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Bluetooth-Verbindung herstellen
         setUpBluetooth();
+        // Hole den Stream-Writer des Roboters
         OutputStream outputStream = null;
         try {
             outputStream = robot.getOutputStream();
             OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+            // Initialisiere Controller
             moveController = new MoveControllerImpl(writer);
             grabController = new GrabControllerImpl(writer);
             communicationController = new CommunicationControllerImpl(writer);
         } catch (IOException e) {
             Log.e("Connection Failure!", "Bluetooth-Connection failed.", e);
         }
+        // UI mit Funktionalität versehen
+        setUpUi();
+    }
+
+    /**
+     * Versieht alle Buttons im UI mit Funktionalität
+     */
+    private void setUpUi() {
+        // Listener an jeden Button
         final ToggleButton forwardButton = (ToggleButton) findViewById(R.id.forwardButton);
         forwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +146,7 @@ public class MainActivity extends ActionBarActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Text aus dem Textfeld an den Roboter senden
                 EditText text = (EditText) findViewById(R.id.editText);
                 communicationController.sendMessage(text.getText().toString());
                 text.setText("");
@@ -141,30 +154,38 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    /**
+     * Baut eine Bluetooth-Verbindung zum ersten Lego-Roboter in der Liste gepairter Devices auf
+     */
     private void setUpBluetooth() {
-        // 1. Get the adapter
+        // 1. Adapter holen
         bAdapter = BluetoothAdapter.getDefaultAdapter();
+        // Kein Bluetooth-fähiges Gerät, falls der Adapter null ist
         if (bAdapter == null) {
             Toast.makeText(getBaseContext(), "Bluetooth not supported on this device!", Toast.LENGTH_SHORT);
+            return;
         }
 
         Set<BluetoothDevice> pairedDevices = bAdapter.getBondedDevices();
-        // If there are paired devices
+        // Falls gepairte Geräte vorhanden sind
         if (pairedDevices.size() > 0) {
-            // Loop through paired devices
+            // Durchlaufe diese
             List<String> devices = new ArrayList<>();
             for (BluetoothDevice device : pairedDevices) {
-                // Add the name and address to an array adapter to show in a ListView
+                // Hole die Informationen aus dem passenden Device und speichere diese.
                 if (device.getBluetoothClass().getDeviceClass() == ROBOT_CLASS_KEY) {
                     devices.add(device.getName());
                     devices.add(device.getAddress());
                     robotDevice = device;
                 }
             }
+            // Setze die Textanzeigen im UI auf Name und Mac-Adresse des Roboters,
+            // um dem Benutzer das verbundene Gerät mitzuteilen
             TextView robotName = (TextView) findViewById(R.id.robotName);
             robotName.setText(devices.get(0));
             TextView robotMac = (TextView) findViewById(R.id.robotMac);
             robotMac.setText(devices.get(1));
+            // Verbindungsaufbau
             BluetoothDevice actualRobotDevice = bAdapter.getRemoteDevice(robotDevice.getAddress());
             try {
                 robot = actualRobotDevice.createRfcommSocketToServiceRecord(appUUID);
