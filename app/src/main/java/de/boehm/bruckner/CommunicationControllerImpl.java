@@ -27,6 +27,17 @@ public class CommunicationControllerImpl implements CommunicationController {
         }
     }
 
+    private void writeMsg(String msg) {
+        try {
+            streamWriter.write(RobotRemoteCommands.ROBOT_MESSAGE);
+            streamWriter.write(msg);
+            streamWriter.write(RobotRemoteCommands.ROBOT_MESSAGE);
+            streamWriter.flush();
+        } catch (IOException e) {
+            Log.e(this.getClass().getSimpleName(), "Writing Error: ", e);
+        }
+    }
+
     @Override
     public void beep(){
         write(RobotRemoteCommands.ROBOT_BEEP);
@@ -38,6 +49,6 @@ public class CommunicationControllerImpl implements CommunicationController {
      */
     @Override
     public void sendMessage(String msg){
-        write(RobotRemoteCommands.ROBOT_MESSAGE);
+        writeMsg(msg);
     }
 }

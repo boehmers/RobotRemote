@@ -135,8 +135,8 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 EditText text = (EditText) findViewById(R.id.editText);
-                Toast.makeText(getBaseContext(), text.getText().toString(), Toast.LENGTH_SHORT);
                 communicationController.sendMessage(text.getText().toString());
+                text.setText("");
             }
         });
     }
@@ -191,7 +191,6 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reconnect) {
-            // TODO reconnect!
             setUpBluetooth();
             return true;
         }
